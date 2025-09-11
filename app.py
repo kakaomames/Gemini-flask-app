@@ -63,11 +63,19 @@ HTML_FORM = """
 
 # --- ユーティリティ関数 ---
 def get_html_with_curl(url):
+    """
+    User-Agentヘッダーを追加して、curlコマンドでURLのHTMLを取得し、その内容を返す関数
+    """
+    # ブラウザのUser-Agentを偽装
+    user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
+    
     try:
-        cmd = ['curl', '-sL', url]
+        # -H オプションでUser-Agentヘッダーを追加
+        cmd = ['curl', '-sL', '-H', f'User-Agent: {user_agent}', url]
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
         return result.stdout
-    except subprocess.CalledProcessError:
+    except subprocess.CalledProcessError as e:
+        print(f"curlコマンドの実行中にエラーが発生しました: {e.stderr}")
         return None
 
 def extract_player_js_url(html_content):
