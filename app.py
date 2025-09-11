@@ -158,7 +158,7 @@ def get_video_data_internal(video_id):
     return jsonify(response_data)
 
 # --- エンドポイント ---
-@app.route('/home', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 return render_template_string(HTML_HOME)
 @app.route('/home', methods=['GET', 'POST'])
 def index():
