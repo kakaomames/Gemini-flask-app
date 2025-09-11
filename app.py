@@ -159,9 +159,10 @@ def get_video_data_internal(video_id):
 
 # --- エンドポイント ---
 @app.route('/', methods=['GET', 'POST'])
+def index():
     return render_template_string(HTML_HOME)
 @app.route('/home', methods=['GET', 'POST'])
-def index():
+def home():
     if request.method == 'POST':
         youtube_url = request.form.get('youtube_url')
         if not youtube_url:
