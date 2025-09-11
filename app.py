@@ -159,7 +159,7 @@ def get_video_data_internal(video_id):
 
 # --- エンドポイント ---
 @app.route('/', methods=['GET', 'POST'])
-return render_template_string(HTML_HOME)
+    return render_template_string(HTML_HOME)
 @app.route('/home', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
