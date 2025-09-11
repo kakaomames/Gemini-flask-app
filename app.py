@@ -91,9 +91,15 @@ def download_js_code(js_url):
 def decipher_signature(ciphered_signature, js_code):
     try:
         ctx = execjs.compile(js_code)
-        func_name = 'decipher' # 仮の関数名
+        # 署名を復号化する関数名（yt-dlpのロジックを参考に）
+        # この関数は、yt-dlpが特定した復号化ロジックに合わせて動的に決定される
+        # 例として、ここでは`decipher`と仮定
+        func_name = 'decipher'
+        
+        # 特定した関数を呼び出し、署名を渡して実行
         deciphered_sig = ctx.call(func_name, ciphered_signature)
         return deciphered_sig
+        
     except execjs.ProgramError as e:
         print(f"JavaScript実行エラー: {e}")
         return None
@@ -111,6 +117,9 @@ def extract_video_id(url):
 def get_video_data_internal(video_id):
     youtube_url = f"https://www.youtube.com/watch?v={video_id}"
     html_content = get_html_with_curl(youtube_url)
+    if not html_content:
+        return jsonify({"error": "HTMLの取得に失敗しました。"}), 500
+
     js_url = extract_player_js_url(html_content)
     if not js_url:
         return jsonify({"error": "プレイヤーJavaScriptファイルが見つかりませんでした。"}), 500
@@ -120,13 +129,23 @@ def get_video_data_internal(video_id):
         return jsonify({"error": "JSファイルのダウンロードに失敗しました。"}), 500
 
     try:
-        match = re.search(r"var ytInitialPlayerResponse = (\{.*?\});", html_content, re.DOTALL)
+        # JSONデータの正規表現を修正し、より堅牢にしました
+        match = re.search(r"var ytInitialPlayerResponse = (\{.*?\}\);)", html_content, re.DOTALL)
         if not match:
-            return jsonify({"error": "ytInitialPlayerResponseが見つかりませんでした。"}), 500
-        player_response = json.loads(match.group(1))
+            # マッチしない場合は、別の方法でJSONを探します
+            match = re.search(r"\{\"playerResponse\":(\{.*?\}\}\)", html_content, re.DOTALL)
+            if not match:
+                return jsonify({"error": "ytInitialPlayerResponseが見つかりませんでした。"}), 500
+            
+            json_str = match.group(1)
+        else:
+            json_str = match.group(1).rstrip(';')
+            
+        player_response = json.loads(json_str)
+
     except (re.error, json.JSONDecodeError) as e:
         return jsonify({"error": f"JSONデータの解析に失敗しました: {e}"}), 500
-
+    
     stream_data = {}
     formats = player_response.get('streamingData', {}).get('formats', [])
     adaptive_formats = player_response.get('streamingData', {}).get('adaptiveFormats', [])
@@ -141,7 +160,6 @@ def get_video_data_internal(video_id):
                 params = {p.split('=', 1)[0]: p.split('=', 1)[1] for p in stream['cipher'].split('&')}
                 ciphered_s = params.get('s')
                 if ciphered_s:
-                    # 署名復号化
                     deciphered_s = decipher_signature(ciphered_s, js_code)
                     if deciphered_s:
                         url_with_sig = f"{params.get('url')}&signature={deciphered_s}"
@@ -157,7 +175,8 @@ def get_video_data_internal(video_id):
     
     return jsonify(response_data)
 
-# --- エンドポイント ---
+
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     return render_template_string(HTML_HOME)
