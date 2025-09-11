@@ -181,7 +181,7 @@ def get_video_data_internal(video_id):
 def index():
     return render_template_string(HTML_HOME)
 @app.route('/home', methods=['GET', 'POST'])
-def home():
+def index():
     if request.method == 'POST':
         youtube_url = request.form.get('youtube_url')
         if not youtube_url:
@@ -192,11 +192,23 @@ def home():
             return render_template_string(HTML_FORM, result="無効なYouTube URLです。")
 
         data_response = get_video_data_internal(video_id)
-        json_data = data_response.get_data(as_text=True)
+        
+        # レスポンスがタプルかResponseオブジェクトかを確認
+        if isinstance(data_response, tuple):
+            # タプルであれば、JSONデータとステータスコードに分解
+            json_response, status_code = data_response
+        else:
+            # Responseオブジェクトであれば、そのまま使用
+            json_response = data_response
+
+        # JSONデータをテキストとして取得
+        json_data = json_response.get_data(as_text=True)
         
         return render_template_string(HTML_FORM, result=json_data)
     
     return render_template_string(HTML_FORM)
+
+# /dataエンドポイントとget_video_data_internal関数は変更なし
 
 @app.route('/data')
 def get_video_data():
