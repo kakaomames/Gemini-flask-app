@@ -9,6 +9,36 @@ from bs4 import BeautifulSoup
 app = Flask(__name__)
 
 # --- HTMLテンプレート ---
+HTML_HOME = """
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ホームページ - pokemoguプロジェクト</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="https://kakaomames.github.io/Minecraft-flask-app/static/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://kakaomames.github.io/Minecraft-flask-app/static/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://kakaomames.github.io/Minecraft-flask-app/static/favicon-16x16.png">
+<link rel="manifest" href="https://kakaomames.github.io/Minecraft-flask-app/static/site.webmanifest">
+    <link rel="stylesheet" href="https://kakaomames.github.io/Minecraft-flask-app/static/style.css">
+</head>
+<body>
+    <header>
+        <h1>HOME🏠</h1>
+        <nav>
+            <ul>
+                <li><a href="/home">ホーム</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+    </main>
+    <footer>
+        <p>&copy; 2025  pokemoguプロジェクト</p>
+    </footer>
+</body>
+</html>
+"""
 HTML_FORM = """
 <!DOCTYPE html>
 <html>
@@ -128,7 +158,9 @@ def get_video_data_internal(video_id):
     return jsonify(response_data)
 
 # --- エンドポイント ---
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/home', methods=['GET', 'POST'])
+return render_template_string(HTML_HOME)
+@app.route('/home', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         youtube_url = request.form.get('youtube_url')
