@@ -91,15 +91,9 @@ def download_js_code(js_url):
 def decipher_signature(ciphered_signature, js_code):
     try:
         ctx = execjs.compile(js_code)
-        # 署名を復号化する関数名（yt-dlpのロジックを参考に）
-        # この関数は、yt-dlpが特定した復号化ロジックに合わせて動的に決定される
-        # 例として、ここでは`decipher`と仮定
-        func_name = 'decipher'
-        
-        # 特定した関数を呼び出し、署名を渡して実行
+        func_name = 'decipher' # 仮の関数名
         deciphered_sig = ctx.call(func_name, ciphered_signature)
         return deciphered_sig
-        
     except execjs.ProgramError as e:
         print(f"JavaScript実行エラー: {e}")
         return None
@@ -130,16 +124,17 @@ def get_video_data_internal(video_id):
 
     try:
         # JSONデータの正規表現を修正し、より堅牢にしました
-        match = re.search(r"var ytInitialPlayerResponse = (\{.*?\}\);)", html_content, re.DOTALL)
+        # `ytInitialPlayerResponse`の開始と終了の波括弧を正確にキャプチャ
+        match = re.search(r"var ytInitialPlayerResponse = ({.*?});", html_content, re.DOTALL)
         if not match:
             # マッチしない場合は、別の方法でJSONを探します
-            match = re.search(r"\{\"playerResponse\":(\{.*?\}\}\)", html_content, re.DOTALL)
+            match = re.search(r"player_response=({.*?})", html_content, re.DOTALL)
             if not match:
                 return jsonify({"error": "ytInitialPlayerResponseが見つかりませんでした。"}), 500
             
             json_str = match.group(1)
         else:
-            json_str = match.group(1).rstrip(';')
+            json_str = match.group(1)
             
         player_response = json.loads(json_str)
 
@@ -174,6 +169,8 @@ def get_video_data_internal(video_id):
     }
     
     return jsonify(response_data)
+
+
 
 
 
