@@ -178,7 +178,7 @@ def get_video_data_internal(video_id):
 
 
 @app.route('/', methods=['GET', 'POST'])
-def index():
+def home():
     return render_template_string(HTML_HOME)
 @app.route('/home', methods=['GET', 'POST'])
 def index():
