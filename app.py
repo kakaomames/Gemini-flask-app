@@ -86,6 +86,8 @@ def get_html_with_curl_robust(url):
     header_list = [f"-H '{k}: {v}'" for k, v in headers.items()]
     
     cmd_list = ['curl', '-sL', '--compressed'] + header_list + [url]
+
+    print(f"curlコマンド: {cmd_list}")
     
     try:
         result = subprocess.run(cmd_list, capture_output=True, text=True, check=True)
@@ -97,6 +99,7 @@ def get_html_with_curl_robust(url):
 def extract_player_js_url(html_content):
     soup = BeautifulSoup(html_content, 'html.parser')
     js_url_pattern = re.compile(r"(/s/player/.*/base\.js)")
+    print(f"JavaScriptリンク: {js_url_pattern}")
     for script in soup.find_all('script'):
         if 'src' in script.attrs:
             match = js_url_pattern.search(script['src'])
