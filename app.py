@@ -65,36 +65,38 @@ HTML_FORM = """
 # --- ユーティリティ関数 ---
 
 
+import subprocess
+
 def get_html_with_curl_robust(url):
-    """
-    subprocessの引数リストを使用して、より確実にcurlを実行
-    """
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Mobile/15E148 Safari/604.1",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Referer": "https://www.youtube.com/",
-        "Sec-Fetch-Site": "cross-site",
-        "Sec-Fetch-Mode": "navigate",
-        "Sec-Fetch-Dest": "document",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Cache-Control": "no-cache",
-        "Pragma": "no-cache",
-        "Cookie": "ST-xuwub9=session_logininfo; SIDCC=AKEyXzVggPlTb1__NX2JIYAVjIT9TE63ZCFT8bY5slGnU8MUjZn3QklxPxpv3ALQks2FPSex3A; PREF=tz; APISID=DJC676vPTpBUyKVX/ADFcwJmoa6X9AXUNX; SAPISID=Zi_8tl-EchJIbH3u_/AXg_zkx7y5RsEjjr4; SID=g.a0000Qh_2DBoieY8JL5NS0jiYi-6oXtvwoFAo-Yr1QhSAgscpNiX5aFmfIsbD42KhTKym24uxwACgYKAUESAQ8SFQHGX2MiWsz-RlDAOLEztVjMmtbokBoVAUF8yKphdGlaBr2sABAom9IBG3MK0076; __Secure-1PAPISID=Zi_8tl-EchJIbH3u_/AXg_zkx7y5RsEjjr4; __Secure-3PAPISID=Zi_8tl-EchJIbH3u_/AXg_zkx7y5RsEjjr4"
-    }
-
-    header_list = [f"-H '{k}: {v}'" for k, v in headers.items()]
-    
-    cmd_list = ['curl', '-sL', '--compressed'] + header_list + [url]
-
-    print(f"curlコマンド: {cmd_list}")
-    
+    headers_str = """
+-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Mobile/15E148 Safari/604.1' \
+-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
+-H 'Referer: https://www.youtube.com/' \
+-H 'Sec-Fetch-Site: cross-site' \
+-H 'Sec-Fetch-Mode: navigate' \
+-H 'Sec-Fetch-Dest: document' \
+-H 'Accept-Language: en-US,en;q=0.9' \
+-H 'Accept-Encoding: gzip, deflate, br' \
+-H 'Cache-Control: no-cache' \
+-H 'Pragma: no-cache' \
+-H 'Cookie: ST-xuwub9=session_logininfo; SIDCC=AKEyXzVggPlTb1__NX2JIYAVjIT9TE63ZCFT8bY5slGnU8MUjZn3QklxPxpv3ALQks2FPSex3A; PREF=tz; APISID=DJC676vPTpBUyKVX/ADFcwJmoa6X9AXUNX; SAPISID=Zi_8tl-EchJIbH3u_/AXg_zkx7y5RsEjjr4; SID=g.a0000Qh_2DBoieY8JL5NS0jiYi-6oXtvwoFAo-Yr1QhSAgscpNiX5aFmfIsbD42KhTKym24uxwACgYKAUESAQ8SFQHGX2MiWsz-RlDAOLEztVjMmtbokBoVAUF8yKphdGlaBr2sABAom9IBG3MK0076; __Secure-1PAPISID=Zi_8tl-EchJIbH3u_/AXg_zkx7y5RsEjjr4; __Secure-3PAPISID=Zi_8tl-EchJIbH3u_/AXg_zkx7y5RsEjjr4' \
+-H "sec-ch-ua: \"Chromium\";v=\"127\", \"Google Chrome\";v=\"127\", \"Not)A;Brand\";v=\"24\"" \
+-H "sec-ch-ua-mobile: ?0" \
+-H "sec-ch-ua-platform: \"macOS\""
+"""
+    cmd1 = f"curl -sL --compressed {headers_str} '{url}'"
+　　　
+　　　print(f"curlコマンド: {cmd1}")
     try:
-        result = subprocess.run(cmd_list, capture_output=True, text=True, check=True)
+        # shell=True を使用して、文字列全体をシェルに渡す
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True, shell=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
         print(f"curlコマンドの実行中にエラーが発生しました: {e.stderr}")
         return None
+        
+    
+    
 
 def extract_player_js_url(html_content):
     soup = BeautifulSoup(html_content, 'html.parser')
