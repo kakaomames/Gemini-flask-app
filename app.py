@@ -84,8 +84,8 @@ def get_html_with_curl_robust(url):
 -H "sec-ch-ua-mobile: ?0" \
 -H "sec-ch-ua-platform: \"macOS\""
 """
-    cmd1 = f"curl -sL --compressed {headers_str} '{url}'"
-    print(f"curlコマンド: {cmd1}")
+    cmd = f"curl -sL --compressed {headers_str} '{url}'"
+    print(f"curlコマンド: {cmd}")
     try:
         # shell=True を使用して、文字列全体をシェルに渡す
         result = subprocess.run(cmd, capture_output=True, text=True, check=True, shell=True)
