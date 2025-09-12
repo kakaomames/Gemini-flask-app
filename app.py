@@ -66,33 +66,43 @@ HTML_FORM = """
 
 
 import subprocess
+import shlex
 
 def get_html_with_curl_robust(url):
-    headers_str = """
--H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Mobile/15E148 Safari/604.1' \
--H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
--H 'Referer: https://www.youtube.com/' \
--H 'Sec-Fetch-Site: cross-site' \
--H 'Sec-Fetch-Mode: navigate' \
--H 'Sec-Fetch-Dest: document' \
--H 'Accept-Language: en-US,en;q=0.9' \
--H 'Accept-Encoding: gzip, deflate, br' \
--H 'Cache-Control: no-cache' \
--H 'Pragma: no-cache' \
--H 'Cookie: ST-xuwub9=session_logininfo; SIDCC=AKEyXzVggPlTb1__NX2JIYAVjIT9TE63ZCFT8bY5slGnU8MUjZn3QklxPxpv3ALQks2FPSex3A; PREF=tz; APISID=DJC676vPTpBUyKVX/ADFcwJmoa6X9AXUNX; SAPISID=Zi_8tl-EchJIbH3u_/AXg_zkx7y5RsEjjr4; SID=g.a0000Qh_2DBoieY8JL5NS0jiYi-6oXtvwoFAo-Yr1QhSAgscpNiX5aFmfIsbD42KhTKym24uxwACgYKAUESAQ8SFQHGX2MiWsz-RlDAOLEztVjMmtbokBoVAUF8yKphdGlaBr2sABAom9IBG3MK0076; __Secure-1PAPISID=Zi_8tl-EchJIbH3u_/AXg_zkx7y5RsEjjr4; __Secure-3PAPISID=Zi_8tl-EchJIbH3u_/AXg_zkx7y5RsEjjr4' \
--H "sec-ch-ua: \"Chromium\";v=\"127\", \"Google Chrome\";v=\"127\", \"Not)A;Brand\";v=\"24\"" \
--H "sec-ch-ua-mobile: ?0" \
--H "sec-ch-ua-platform: \"macOS\""
+    # 提供されたログからCookie情報を取得し、一つの文字列に結合します
+    cookies_str = "ST-171d7yk=csn=EUqAifeVqCzPnqcA&itct=CJQCEIf2BBgBIhMI0abUk73SjwMVKC40CB0F8wvnMgZzZWFyY2hSBFR1cnWaAQUIMhD0JMoBBF6O_bg; ST-h94f5f=csn=EUqAifeVqCzPnqcA&itct=CJECEIf2BBgCIhMI0abUk73SjwMVKC40CB0F8wvnMgZzZWFyY2hSBFR1cnWaAQUIMhD0JMoBBF6O_bg; PREF=f4=4000000&tz=America.Phoenix; __Secure-ROLLOUT_TOKEN=CPuCxJiak9GEpgEQzNmYjb3SjwMY7L3Pjb3SjwM%3D; GPS=1; VISITOR_INFO1_LIVE=XT1d66v3_Uw; VISITOR_PRIVACY_METADATA=CgJVUxIEGgAgVg%3D%3D; YSC=9BWcpS1FSwU"
+
+    headers_str = f"""
+-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15' \
+-H 'Accept: */*' \
+-H 'x-youtube-client-version: 2.20250910.00.00' \
+-H 'sec-fetch-site: same-origin' \
+-H 'x-youtube-client-name: 1' \
+-H 'sec-fetch-mode: same-origin' \
+-H 'origin: https://www.youtube.com' \
+-H 'referer: https://www.youtube.com/results?search_query=Turu' \
+-H 'x-goog-visitor-id: CgtYVDFkNjZ2M19Vdyi6247GBjIKCgJVUxIEGgAgVg%3D%3D' \
+-H 'content-length: 4982' \
+-H 'sec-fetch-dest: empty' \
+-H 'x-youtube-bootstrap-logged-in: false' \
+-H 'accept-language: en-US,en;q=0.9' \
+-H 'priority: u=3, i' \
+-H 'accept-encoding: gzip, deflate, br' \
+-H 'Cookie: {cookies_str}'
 """
-    cmd = f"curl -sL --compressed {headers_str} '{url}'"
+    cmd = f"curl -sL --compressed {headers_str} 'https://www.youtube.com/youtubei/v1/player?prettyPrint=false' -d '...' --compressed" # リクエストボディは省略
     print(f"curlコマンド: {cmd}")
+    
     try:
         # shell=True を使用して、文字列全体をシェルに渡す
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True, shell=True)
+        result = subprocess.run(shlex.split(cmd), capture_output=True, text=True, check=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
         print(f"curlコマンドの実行中にエラーが発生しました: {e.stderr}")
         return None
+        
+    
+
         
     
     
