@@ -134,7 +134,7 @@ def extract_video_id(url):
 # --- APIのロジックを担う内部関数 ---
 def get_video_data_internal(video_id):
     youtube_url = f"https://www.youtube.com/watch?v={video_id}"
-    html_content = get_html_with_curl(youtube_url)
+    html_content = get_html_with_curl_robust(youtube_url)
     if not html_content:
         return jsonify({"error": "HTMLの取得に失敗しました。"}), 500
 
