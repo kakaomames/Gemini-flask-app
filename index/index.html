@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pythonファイル結合アプリ</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; line-height: 1.6; }
+        h1 { color: #2c3e50; }
+        .form-section { background-color: #f4f7f9; padding: 20px; border-radius: 8px; margin-top: 20px; }
+        label, input, textarea, button { display: block; width: 100%; margin-bottom: 10px; box-sizing: border-box; }
+        input[type="text"], input[type="file"] { padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        input[type="file"] { background-color: white; cursor: pointer; }
+        button { background-color: #3498db; color: white; border: none; padding: 12px; cursor: pointer; border-radius: 4px; }
+        button:hover { background-color: #2980b9; }
+        #result { margin-top: 20px; padding: 15px; border-radius: 4px; display: none; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <h1>Pythonファイル結合ツール 🤖</h1>
+    <p>複数のPythonファイルをブラウザ上で結合し、1つのファイルとしてダウンロードします。</p>
+    <div class="form-section">
+        <form id="combine-form">
+            <label for="input_files">入力ファイル (複数選択可):</label>
+            <input type="file" id="input_files" name="input_files" multiple accept=".py">
+            
+            <label for="output_file_name">出力ファイル名:</label>
+            <input type="text" id="output_file_name" placeholder="combined_output.py" value="combined_output.py">
+            
+            <button type="submit">結合してダウンロード</button>
+        </form>
+    </div>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('combine-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // フォームの送信をキャンセル
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'none';
+
+            const files = document.getElementById('input_files').files;
+            const outputFileName = document.getElementById('output_file_name').value || 'combined_output.py';
+
+            if (files.length === 0) {
+                resultDiv.textContent = '❌ エラー：結合するファイルを1つ以上選択してください。';
+                resultDiv.className = 'error';
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            const readers = [];
+            let combinedContent = '';
+            let filesProcessed = 0;
+
+            function readFile(file, index) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    combinedContent += `\n# --- Start of file: ${file.name} ---\n`;
+                    combinedContent += e.target.result;
+                    combinedContent += `\n# --- End of file: ${file.name} ---\n\n`;
+                    filesProcessed++;
+
+                    if (filesProcessed === files.length) {
+                        // すべてのファイルの読み込みが完了したらダウンロード
+                        downloadFile(combinedContent, outputFileName);
+                        resultDiv.textContent = '✅ ファイル結合に成功しました！';
+                        resultDiv.className = 'success';
+                        resultDiv.style.display = 'block';
+                    }
+                };
+                reader.onerror = function() {
+                    resultDiv.textContent = `❌ エラー：ファイル ${file.name} の読み込み中に問題が発生しました。`;
+                    resultDiv.className = 'error';
+                    resultDiv.style.display = 'block';
+                };
+                reader.readAsText(file);
+            }
+
+            function downloadFile(content, fileName) {
+                const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url); // オブジェクトURLを解放
+            }
+
+            for (let i = 0; i < files.length; i++) {
+                readFile(files[i], i);
+            }
+        });
+    </script>
+</body>
+</html>
