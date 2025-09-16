@@ -1,9 +1,5 @@
-
 # --- Start of file: __init__.py ---
-
 # --- End of file: __init__.py ---
-
-
 # --- Start of file: _legacy.py ---
 """ Do not use! """
 
@@ -122,8 +118,6 @@ compat_urllib_parse_urlparse = urllib.parse.urlparse
 legacy = []
 
 # --- End of file: _legacy.py ---
-
-
 # --- Start of file: _mistakes.py ---
 
 from ._base import YoutubeBaseInfoExtractor
@@ -452,7 +446,7 @@ class PoTokenCache:
     ):
         spec = self._get_cache_spec(request)
         if not spec:
-            self.logger.trace('No cache spec available for this request. Not caching.')
+            self.logger.trace('このリクエストで利用可能なキャッシュ仕様はありません。キャッシュではありません。')
             return
 
         if not validate_response(response):
@@ -729,7 +723,7 @@ class YoutubeClipIE(YoutubeTabBaseInfoExtractor):
     IE_NAME = 'youtube:clip'
     _VALID_URL = r'https?://(?:www\.)?youtube\.com/clip/(?P<id>[^/?#]+)'
     _TESTS = [{
-        # FIXME: Other metadata should be extracted from the clip, not from the base video
+        # FIXME：その他のメタデータは、ベースビデオからではなく、クリップから抽出する必要があります。
         'url': 'https://www.youtube.com/clip/UgytZKpehg-hEMBSn3F4AaABCQ',
         'info_dict': {
             'id': 'UgytZKpehg-hEMBSn3F4AaABCQ',
