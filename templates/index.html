@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>YouTube動画情報チェッカー</title>
+</head>
+<body>
+    <h1>YouTube動画情報チェッカー</h1>
+    <form action="/process_url" method="post">
+        <label for="url_input">YouTube URLを入力してください：</label>
+        <input type="text" id="url_input" name="url_input" placeholder="例: https://www.youtube.com/watch?v=..." required>
+        <button type="submit">情報を取得</button>
+    </form>
+</body>
+</html>
