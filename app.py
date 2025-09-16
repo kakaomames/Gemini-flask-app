@@ -91,15 +91,14 @@ def get_html_with_curl_robust(url):
 -H 'Cookie: {cookies_str}'
 """
     cmd = f"curl -sL --compressed {headers_str} 'https://www.youtube.com/youtubei/v1/player?prettyPrint=false' -d '...' --compressed" # リクエストボディは省略
-    print(f"curlコマンド: {cmd}")
-    
+
     try:
         # shell=True を使用して、文字列全体をシェルに渡す
         result = subprocess.run(shlex.split(cmd), capture_output=True, text=True, check=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
-        print(f"curlコマンドの実行中にエラーが発生しました: {e.stderr}")
-        return None
+        # ここでエラーハンドリングを修正
+        return {"error": "HTMLの取得に失敗しました。", "logs": e.stderr}
         
     
 
