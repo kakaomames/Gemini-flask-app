@@ -2,14 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "yt_dlp.py",
+      "src": "yt_dlp2.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "yt_dlp.py"
+      "dest": "yt_dlp2.py"
     }
   ]
 }
