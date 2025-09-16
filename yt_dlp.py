@@ -43,6 +43,11 @@ from ..dependencies import brotli as compat_brotli  # noqa: F401
 from ..dependencies import websockets as compat_websockets  # noqa: F401
 from ..dependencies.Cryptodome import AES as compat_pycrypto_AES  # noqa: F401
 from ..networking.exceptions import HTTPError as compat_HTTPError
+from flask import Flask, request, render_template
+import re
+import json
+
+app = Flask(__name__)
 
 passthrough_module(__name__, '...utils', ('windows_enable_vt_mode',))
 
@@ -37037,4 +37042,31 @@ class YoutubeDL:
         return ret
 
 # --- End of file: YoutubeDL.py ---
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/process_url', methods=['POST'])
+def process_url():
+    video_url = request.form.get('url_input')
+    video_id = None
+    
+    # URLからvideo_idを抽出する正規表現
+    match = re.search(r'(?:youtube\.com/watch\?v=|youtu\.be/)([^&]+)', video_url)
+    if match:
+        video_id = match.group(1)
+    
+    if video_id:
+        # video_idを使ってYouTubeから情報を取得
+        response_json_str = get_html_with_python(video_id)
+        video_info = json.loads(response_json_str)
+        
+        # テンプレートに渡すデータを作成
+        video_details = video_info.get("videoDetails", {})
+        return render_template('result.html', video=video_details)
+    else:
+        return "無効なURLです。", 400
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
